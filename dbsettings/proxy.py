@@ -38,7 +38,7 @@ class SettingsProxy(object):
             root, created = qs.get_or_create(defaults={})
             root = qs[0]  # Run select_related again
         for app_label, classes in iteritems(registered_settings):
-            for model_name, cls in classes.items():
+            for model_name, cls in iteritems(classes):
                 f = '%s_%s' % (app_label, model_name)
                 try:
                     v = getattr(root, f)
