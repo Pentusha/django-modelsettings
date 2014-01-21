@@ -38,9 +38,9 @@ Create a `Settings` class in your application's `models.py`:
 import dbsettings
 
 class Settings(dbsettings.Settings):
-	contact_email = models.EmailField(default="info@localhost")
-	update_interval = models.PositiveIntegerField(null=True, default=10, help_text="Update interval in seconds")
-	facebook_app_id = models.CharField("Facebook App ID", max_length=32, blank=True)
+    contact_email = models.EmailField(default="info@localhost")
+    update_interval = models.PositiveIntegerField(null=True, default=10, help_text="Update interval in seconds")
+    facebook_app_id = models.CharField("Facebook App ID", max_length=32, blank=True)
 ```
 
 Create the corresponding database tables: `./manage.py syncdb`.
@@ -52,7 +52,7 @@ In your business logic code, use settings like that:
 ```python
 from dbsettings import settings
 
-print settings.blog.contact_email # where blog is your application's name
+print(settings.blog.contact_email)  # where blog is your application's name
 
 settings.blog.update_interval = 60
 settings.blog.save()
@@ -76,13 +76,13 @@ The admin area will be accessible at [http://localhost:8000/admin/settings/](htt
 {% load i18n %}
 
 {% block branding %}
-	<h1 id="site-name">
-		<a href="{% url 'admin:index' %}">{% trans "Administration" %}</a> |
-		{% if user.is_superuser %}
-			<a href="{% url 'admin:settings' %}">{% trans "Settings" %}</a> |
-		{% endif %}
-		<a href="/">{% trans "Back to site" %}</a>
-	</h1>
+  <h1 id="site-name">
+    <a href="{% url 'admin:index' %}">{% trans "Administration" %}</a> |
+    {% if user.is_superuser %}
+      <a href="{% url 'admin:settings' %}">{% trans "Settings" %}</a> |
+    {% endif %}
+    <a href="/">{% trans "Back to site" %}</a>
+  </h1>
 {% endblock %}
 ```
 
@@ -92,9 +92,9 @@ In production environment you will need to invalidate settings on time (read mor
 
 ```python
 MIDDLEWARE_CLASSES =
-	...
-	'dbsettings.middleware.InvalidateSettingsMiddleware',
-	...
+    ...
+    'dbsettings.middleware.InvalidateSettingsMiddleware',
+    ...
 ```
 
 Advanced
@@ -108,21 +108,21 @@ Sometimes it is convenient to split settings into several groups within one appl
 import dbsettings
 
 class FooSettings(dbsettings.Settings):
-	option1 = models.IntegerField()
+    option1 = models.IntegerField()
 
 class BarSettings(dbsettings.Settings):
-	option2 = models.IntegerField()
+    option2 = models.IntegerField()
 
 class Settings(dbsettings.Settings): # not required
-	option3 = models.IntegerField()
+    option3 = models.IntegerField()
 
 ...
 
 from dbsettings import settings
 
-print settings.blog_foosettings.option1
-print settings.blog_barsettings.option2
-print settings.blog.option3
+print(settings.blog_foosettings.option1)
+print(settings.blog_barsettings.option2)
+print(settings.blog.option3)
 ```
 
 Yes, I realize that `settings.blog.foo.option1` would make it cleaner, and I may try to implement this in future.
@@ -138,14 +138,14 @@ from blog.models import Settings
 
 class SettingsForm(forms.ModelForm):
     class Meta:
-      model = Settings
+        model = Settings
         
     def clean(self):
         # your logic goes here
 
 class SettingsAdmin(admin.ModelAdmin):
     form = SettingsForm
-	raw_id_fields = 'default_account',
+    raw_id_fields = 'default_account',
     
     def formfield_for_dbfield(self, db_field, **kwargs):
         # your logic goes here
@@ -176,12 +176,12 @@ Then you access settings like this:
 There are two tiers of caching data in dbsettings:
 
 1. By default settings are cached in dbsettings.settings (a Python object). When running in multi-process environment (such as nginx+UWSGI) this needs to be invalidated from time to time to ensure that all worker processes catch changes made by the other processes. Typically, you would do that on each HTTP request by including the provided middleware:
-	```python
-	MIDDLEWARE_CLASSES =
-		...
-		'dbsettings.middleware.InvalidateSettingsMiddleware',
-		...
-	```
+    ```python
+    MIDDLEWARE_CLASSES =
+        ...
+        'dbsettings.middleware.InvalidateSettingsMiddleware',
+        ...
+    ```
 
 2. **(Not currently implemented)** Additionally, settings may be cached using [Django caching framework](https://docs.djangoproject.com/en/dev/topics/cache/). If this is enabled, when settings are about to be read from the database (either on first access, or after invalidation), an attempt will be made to retrieve them from Django cache.
 ```python
@@ -195,8 +195,8 @@ Unfortunately, `dbsettings.settings` clashes with `django.conf.settings` so you 
 ```python
 from django.conf import settings
 
-print settings.SECRET_KEY
-print settings.db.blog.contact_email
+print(settings.SECRET_KEY)
+print(settings.db.blog.contact_email)
 ```
 
 or:
@@ -204,6 +204,6 @@ or:
 ```python
 from dbsettings import settings
 
-print settings.blog.contact_email
-print settings.django.SECRET_KEY
+print(settings.blog.contact_email)
+print(settings.django.SECRET_KEY)
 ```
